@@ -9,38 +9,243 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedClienteRouteImport } from './routes/_authenticated/cliente'
+import { Route as AuthenticatedBarbeiroRouteImport } from './routes/_authenticated/barbeiro'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedClienteIndexRouteImport } from './routes/_authenticated/cliente/index'
+import { Route as AuthenticatedBarbeiroIndexRouteImport } from './routes/_authenticated/barbeiro/index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedClientePlanosRouteImport } from './routes/_authenticated/cliente/planos'
+import { Route as AuthenticatedClienteHistoricoRouteImport } from './routes/_authenticated/cliente/historico'
+import { Route as AuthenticatedClienteAgendarRouteImport } from './routes/_authenticated/cliente/agendar'
+import { Route as AuthenticatedAdminRelatoriosRouteImport } from './routes/_authenticated/admin/relatorios'
+import { Route as AuthenticatedAdminClientesRouteImport } from './routes/_authenticated/admin/clientes'
+import { Route as AuthenticatedAdminBarbeirosRouteImport } from './routes/_authenticated/admin/barbeiros'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedClienteRoute = AuthenticatedClienteRouteImport.update({
+  id: '/cliente',
+  path: '/cliente',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedBarbeiroRoute = AuthenticatedBarbeiroRouteImport.update({
+  id: '/barbeiro',
+  path: '/barbeiro',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedClienteIndexRoute =
+  AuthenticatedClienteIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedClienteRoute,
+  } as any)
+const AuthenticatedBarbeiroIndexRoute =
+  AuthenticatedBarbeiroIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedBarbeiroRoute,
+  } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedClientePlanosRoute =
+  AuthenticatedClientePlanosRouteImport.update({
+    id: '/planos',
+    path: '/planos',
+    getParentRoute: () => AuthenticatedClienteRoute,
+  } as any)
+const AuthenticatedClienteHistoricoRoute =
+  AuthenticatedClienteHistoricoRouteImport.update({
+    id: '/historico',
+    path: '/historico',
+    getParentRoute: () => AuthenticatedClienteRoute,
+  } as any)
+const AuthenticatedClienteAgendarRoute =
+  AuthenticatedClienteAgendarRouteImport.update({
+    id: '/agendar',
+    path: '/agendar',
+    getParentRoute: () => AuthenticatedClienteRoute,
+  } as any)
+const AuthenticatedAdminRelatoriosRoute =
+  AuthenticatedAdminRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminClientesRoute =
+  AuthenticatedAdminClientesRouteImport.update({
+    id: '/clientes',
+    path: '/clientes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminBarbeirosRoute =
+  AuthenticatedAdminBarbeirosRouteImport.update({
+    id: '/barbeiros',
+    path: '/barbeiros',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/login': typeof LoginRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/barbeiro': typeof AuthenticatedBarbeiroRouteWithChildren
+  '/cliente': typeof AuthenticatedClienteRouteWithChildren
+  '/admin/barbeiros': typeof AuthenticatedAdminBarbeirosRoute
+  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
+  '/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
+  '/cliente/agendar': typeof AuthenticatedClienteAgendarRoute
+  '/cliente/historico': typeof AuthenticatedClienteHistoricoRoute
+  '/cliente/planos': typeof AuthenticatedClientePlanosRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/barbeiro/': typeof AuthenticatedBarbeiroIndexRoute
+  '/cliente/': typeof AuthenticatedClienteIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/login': typeof LoginRoute
+  '/admin/barbeiros': typeof AuthenticatedAdminBarbeirosRoute
+  '/admin/clientes': typeof AuthenticatedAdminClientesRoute
+  '/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
+  '/cliente/agendar': typeof AuthenticatedClienteAgendarRoute
+  '/cliente/historico': typeof AuthenticatedClienteHistoricoRoute
+  '/cliente/planos': typeof AuthenticatedClientePlanosRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/barbeiro': typeof AuthenticatedBarbeiroIndexRoute
+  '/cliente': typeof AuthenticatedClienteIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/cadastro': typeof CadastroRoute
+  '/login': typeof LoginRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/barbeiro': typeof AuthenticatedBarbeiroRouteWithChildren
+  '/_authenticated/cliente': typeof AuthenticatedClienteRouteWithChildren
+  '/_authenticated/admin/barbeiros': typeof AuthenticatedAdminBarbeirosRoute
+  '/_authenticated/admin/clientes': typeof AuthenticatedAdminClientesRoute
+  '/_authenticated/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
+  '/_authenticated/cliente/agendar': typeof AuthenticatedClienteAgendarRoute
+  '/_authenticated/cliente/historico': typeof AuthenticatedClienteHistoricoRoute
+  '/_authenticated/cliente/planos': typeof AuthenticatedClientePlanosRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/barbeiro/': typeof AuthenticatedBarbeiroIndexRoute
+  '/_authenticated/cliente/': typeof AuthenticatedClienteIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/cadastro'
+    | '/login'
+    | '/admin'
+    | '/barbeiro'
+    | '/cliente'
+    | '/admin/barbeiros'
+    | '/admin/clientes'
+    | '/admin/relatorios'
+    | '/cliente/agendar'
+    | '/cliente/historico'
+    | '/cliente/planos'
+    | '/admin/'
+    | '/barbeiro/'
+    | '/cliente/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/cadastro'
+    | '/login'
+    | '/admin/barbeiros'
+    | '/admin/clientes'
+    | '/admin/relatorios'
+    | '/cliente/agendar'
+    | '/cliente/historico'
+    | '/cliente/planos'
+    | '/admin'
+    | '/barbeiro'
+    | '/cliente'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/cadastro'
+    | '/login'
+    | '/_authenticated/admin'
+    | '/_authenticated/barbeiro'
+    | '/_authenticated/cliente'
+    | '/_authenticated/admin/barbeiros'
+    | '/_authenticated/admin/clientes'
+    | '/_authenticated/admin/relatorios'
+    | '/_authenticated/cliente/agendar'
+    | '/_authenticated/cliente/historico'
+    | '/_authenticated/cliente/planos'
+    | '/_authenticated/admin/'
+    | '/_authenticated/barbeiro/'
+    | '/_authenticated/cliente/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  CadastroRoute: typeof CadastroRoute
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +253,161 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/cliente': {
+      id: '/_authenticated/cliente'
+      path: '/cliente'
+      fullPath: '/cliente'
+      preLoaderRoute: typeof AuthenticatedClienteRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/barbeiro': {
+      id: '/_authenticated/barbeiro'
+      path: '/barbeiro'
+      fullPath: '/barbeiro'
+      preLoaderRoute: typeof AuthenticatedBarbeiroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/cliente/': {
+      id: '/_authenticated/cliente/'
+      path: '/'
+      fullPath: '/cliente/'
+      preLoaderRoute: typeof AuthenticatedClienteIndexRouteImport
+      parentRoute: typeof AuthenticatedClienteRoute
+    }
+    '/_authenticated/barbeiro/': {
+      id: '/_authenticated/barbeiro/'
+      path: '/'
+      fullPath: '/barbeiro/'
+      preLoaderRoute: typeof AuthenticatedBarbeiroIndexRouteImport
+      parentRoute: typeof AuthenticatedBarbeiroRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/cliente/planos': {
+      id: '/_authenticated/cliente/planos'
+      path: '/planos'
+      fullPath: '/cliente/planos'
+      preLoaderRoute: typeof AuthenticatedClientePlanosRouteImport
+      parentRoute: typeof AuthenticatedClienteRoute
+    }
+    '/_authenticated/cliente/historico': {
+      id: '/_authenticated/cliente/historico'
+      path: '/historico'
+      fullPath: '/cliente/historico'
+      preLoaderRoute: typeof AuthenticatedClienteHistoricoRouteImport
+      parentRoute: typeof AuthenticatedClienteRoute
+    }
+    '/_authenticated/cliente/agendar': {
+      id: '/_authenticated/cliente/agendar'
+      path: '/agendar'
+      fullPath: '/cliente/agendar'
+      preLoaderRoute: typeof AuthenticatedClienteAgendarRouteImport
+      parentRoute: typeof AuthenticatedClienteRoute
+    }
+    '/_authenticated/admin/relatorios': {
+      id: '/_authenticated/admin/relatorios'
+      path: '/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AuthenticatedAdminRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/clientes': {
+      id: '/_authenticated/admin/clientes'
+      path: '/clientes'
+      fullPath: '/admin/clientes'
+      preLoaderRoute: typeof AuthenticatedAdminClientesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/barbeiros': {
+      id: '/_authenticated/admin/barbeiros'
+      path: '/barbeiros'
+      fullPath: '/admin/barbeiros'
+      preLoaderRoute: typeof AuthenticatedAdminBarbeirosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminBarbeirosRoute: typeof AuthenticatedAdminBarbeirosRoute
+  AuthenticatedAdminClientesRoute: typeof AuthenticatedAdminClientesRoute
+  AuthenticatedAdminRelatoriosRoute: typeof AuthenticatedAdminRelatoriosRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminBarbeirosRoute: AuthenticatedAdminBarbeirosRoute,
+  AuthenticatedAdminClientesRoute: AuthenticatedAdminClientesRoute,
+  AuthenticatedAdminRelatoriosRoute: AuthenticatedAdminRelatoriosRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedBarbeiroRouteChildren {
+  AuthenticatedBarbeiroIndexRoute: typeof AuthenticatedBarbeiroIndexRoute
+}
+
+const AuthenticatedBarbeiroRouteChildren: AuthenticatedBarbeiroRouteChildren = {
+  AuthenticatedBarbeiroIndexRoute: AuthenticatedBarbeiroIndexRoute,
+}
+
+const AuthenticatedBarbeiroRouteWithChildren =
+  AuthenticatedBarbeiroRoute._addFileChildren(
+    AuthenticatedBarbeiroRouteChildren,
+  )
+
+interface AuthenticatedClienteRouteChildren {
+  AuthenticatedClienteAgendarRoute: typeof AuthenticatedClienteAgendarRoute
+  AuthenticatedClienteHistoricoRoute: typeof AuthenticatedClienteHistoricoRoute
+  AuthenticatedClientePlanosRoute: typeof AuthenticatedClientePlanosRoute
+  AuthenticatedClienteIndexRoute: typeof AuthenticatedClienteIndexRoute
+}
+
+const AuthenticatedClienteRouteChildren: AuthenticatedClienteRouteChildren = {
+  AuthenticatedClienteAgendarRoute: AuthenticatedClienteAgendarRoute,
+  AuthenticatedClienteHistoricoRoute: AuthenticatedClienteHistoricoRoute,
+  AuthenticatedClientePlanosRoute: AuthenticatedClientePlanosRoute,
+  AuthenticatedClienteIndexRoute: AuthenticatedClienteIndexRoute,
+}
+
+const AuthenticatedClienteRouteWithChildren =
+  AuthenticatedClienteRoute._addFileChildren(AuthenticatedClienteRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedBarbeiroRoute: typeof AuthenticatedBarbeiroRouteWithChildren
+  AuthenticatedClienteRoute: typeof AuthenticatedClienteRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedBarbeiroRoute: AuthenticatedBarbeiroRouteWithChildren,
+  AuthenticatedClienteRoute: AuthenticatedClienteRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  CadastroRoute: CadastroRoute,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
