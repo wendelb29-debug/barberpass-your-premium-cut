@@ -18,10 +18,12 @@ export type Database = {
         Row: {
           barber_id: string
           completed_at: string | null
+          confirmed_by_whatsapp: boolean
           created_at: string
           id: string
           notes: string | null
           plan_id: string | null
+          reminder_sent_at: string | null
           scheduled_at: string
           service_type: string
           status: string
@@ -30,10 +32,12 @@ export type Database = {
         Insert: {
           barber_id: string
           completed_at?: string | null
+          confirmed_by_whatsapp?: boolean
           created_at?: string
           id?: string
           notes?: string | null
           plan_id?: string | null
+          reminder_sent_at?: string | null
           scheduled_at: string
           service_type?: string
           status?: string
@@ -42,10 +46,12 @@ export type Database = {
         Update: {
           barber_id?: string
           completed_at?: string | null
+          confirmed_by_whatsapp?: boolean
           created_at?: string
           id?: string
           notes?: string | null
           plan_id?: string | null
+          reminder_sent_at?: string | null
           scheduled_at?: string
           service_type?: string
           status?: string
@@ -75,6 +81,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          phone: string | null
           specialties: string[]
           user_id: string | null
         }
@@ -84,6 +91,7 @@ export type Database = {
           created_at?: string
           full_name: string
           id?: string
+          phone?: string | null
           specialties?: string[]
           user_id?: string | null
         }
@@ -93,6 +101,7 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          phone?: string | null
           specialties?: string[]
           user_id?: string | null
         }
@@ -279,6 +288,39 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      whatsapp_sessions: {
+        Row: {
+          created_at: string
+          data_json: Json
+          human_handoff: boolean
+          id: string
+          last_message: string | null
+          phone: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_json?: Json
+          human_handoff?: boolean
+          id?: string
+          last_message?: string | null
+          phone: string
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_json?: Json
+          human_handoff?: boolean
+          id?: string
+          last_message?: string | null
+          phone?: string
+          state?: string
+          updated_at?: string
         }
         Relationships: []
       }

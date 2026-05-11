@@ -1,1 +1,10 @@
 project_id = "zjnjizzrhckpregatuqj"
+
+[functions.send-appointment-confirmation]
+verify_jwt = false
+
+[functions.daily-reminder]
+verify_jwt = false
+
+[functions.whatsapp-webhook]
+verify_jwt = false
