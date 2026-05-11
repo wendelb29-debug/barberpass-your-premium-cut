@@ -39,7 +39,7 @@ function BarberAgenda() {
   });
 
   const update = async (id: string, status: string) => {
-    const patch: Record<string, unknown> = { status };
+    const patch: { status: string; completed_at?: string } = { status };
     if (status === "completed") patch.completed_at = new Date().toISOString();
     const { error } = await supabase.from("appointments").update(patch).eq("id", id);
     if (error) { toast.error(error.message); return; }
