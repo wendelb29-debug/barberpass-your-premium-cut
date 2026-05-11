@@ -1,13 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/AppShell";
+import { StatusBadge } from "@/components/StatusBadge";
+import { InitialsAvatar } from "@/components/Avatar";
+import { DataTable, TH, THead, TBody, TR, TD, EmptyRow } from "@/components/DataTable";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/admin/clientes")({ component: AdminClients });
 
 function AdminClients() {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-clients"],
     queryFn: async () => {
       const { data } = await supabase
@@ -19,36 +22,41 @@ function AdminClients() {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl">Clientes</h1>
-        <p className="text-muted-foreground">Todos os usuários cadastrados.</p>
-      </div>
-      <Card className="overflow-x-auto p-0">
-        <table className="w-full text-sm">
-          <thead className="border-b border-border bg-background/50">
-            <tr className="text-left">
-              <th className="px-4 py-3">Nome</th><th className="px-4 py-3">Telefone</th>
-              <th className="px-4 py-3">Plano</th><th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Cadastro</th>
-            </tr>
-          </thead>
-          <tbody>
+    <div className="flex flex-col gap-8">
+      <PageHeader title="Clientes" subtitle="Todos os usuários cadastrados." />
+      {isLoading ? (
+        <Skeleton className="h-[300px] w-full rounded-xl" />
+      ) : (
+        <DataTable>
+          <THead>
+            <TH>Nome</TH>
+            <TH>Telefone</TH>
+            <TH>Plano</TH>
+            <TH>Status</TH>
+            <TH>Cadastro</TH>
+          </THead>
+          <TBody>
+            {!data?.length && <EmptyRow colSpan={5}>Nenhum cliente ainda.</EmptyRow>}
             {data?.map((c: any) => {
               const sub = c.subscriptions?.[0];
               return (
-                <tr key={c.id} className="border-b border-border/50">
-                  <td className="px-4 py-3 font-medium">{c.full_name || "—"}</td>
-                  <td className="px-4 py-3">{c.phone || "—"}</td>
-                  <td className="px-4 py-3">{sub?.plans?.name ?? "—"}</td>
-                  <td className="px-4 py-3">{sub ? <Badge variant="outline">{sub.status}</Badge> : "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{new Date(c.created_at).toLocaleDateString("pt-BR")}</td>
-                </tr>
+                <TR key={c.id}>
+                  <TD>
+                    <div className="flex items-center gap-2.5">
+                      <InitialsAvatar name={c.full_name} />
+                      <span className="font-medium">{c.full_name || "—"}</span>
+                    </div>
+                  </TD>
+                  <TD className="tnum text-muted-foreground">{c.phone || "—"}</TD>
+                  <TD className="text-muted-foreground">{sub?.plans?.name ?? "—"}</TD>
+                  <TD>{sub ? <StatusBadge status={sub.status} /> : <span className="text-muted-foreground">—</span>}</TD>
+                  <TD className="tnum text-muted-foreground">{new Date(c.created_at).toLocaleDateString("pt-BR")}</TD>
+                </TR>
               );
             })}
-          </tbody>
-        </table>
-      </Card>
+          </TBody>
+        </DataTable>
+      )}
     </div>
   );
 }

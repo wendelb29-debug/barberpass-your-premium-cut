@@ -2,14 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/AppShell";
+import { StatusBadge } from "@/components/StatusBadge";
+import { DataTable, TH, THead, TBody, TR, TD, EmptyRow } from "@/components/DataTable";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/cliente/historico")({ component: History });
 
 function History() {
   const { user } = useAuth();
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["history", user?.id],
     enabled: !!user,
     queryFn: async () => (await supabase
@@ -20,25 +22,35 @@ function History() {
   });
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl">Histórico</h1>
-        <p className="text-muted-foreground">Seus atendimentos.</p>
-      </div>
-      <Card className="divide-y divide-border p-0">
-        {!data?.length && <div className="p-8 text-center text-muted-foreground">Nenhum atendimento ainda.</div>}
-        {data?.map((a) => (
-          <div key={a.id} className="flex items-center justify-between gap-4 p-4">
-            <div>
-              <div className="font-medium">{new Date(a.scheduled_at).toLocaleString("pt-BR")}</div>
-              <div className="text-sm text-muted-foreground">
-                {a.barbers?.full_name ?? "—"} • {a.service_type} • {a.plans?.name ?? "Avulso"}
-              </div>
-            </div>
-            <Badge variant="outline">{a.status}</Badge>
-          </div>
-        ))}
-      </Card>
+    <div className="flex flex-col gap-8">
+      <PageHeader title="Histórico" subtitle="Seus atendimentos passados e futuros." />
+      {isLoading ? (
+        <Skeleton className="h-[260px] w-full rounded-xl" />
+      ) : (
+        <DataTable>
+          <THead>
+            <TH>Data e hora</TH>
+            <TH>Barbeiro</TH>
+            <TH>Serviço</TH>
+            <TH>Plano</TH>
+            <TH>Status</TH>
+          </THead>
+          <TBody>
+            {!data?.length && <EmptyRow colSpan={5}>Nenhum atendimento ainda.</EmptyRow>}
+            {data?.map((a) => (
+              <TR key={a.id}>
+                <TD className="tnum font-medium">
+                  {new Date(a.scheduled_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
+                </TD>
+                <TD className="text-muted-foreground">{(a as any).barbers?.full_name ?? "—"}</TD>
+                <TD className="text-muted-foreground">{a.service_type}</TD>
+                <TD className="text-muted-foreground">{(a as any).plans?.name ?? "Avulso"}</TD>
+                <TD><StatusBadge status={a.status} /></TD>
+              </TR>
+            ))}
+          </TBody>
+        </DataTable>
+      )}
     </div>
   );
 }
