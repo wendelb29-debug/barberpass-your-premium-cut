@@ -112,10 +112,10 @@ async function handleReminderReply(phone: string, text: string): Promise<boolean
 
   if (wantsConfirm) {
     await supabase.from("appointments").update({ status: "confirmed", confirmed_by_whatsapp: true }).eq("id", appt.id);
-    await sendWhatsApp(phone, "✅ Presença confirmada! Te esperamos.");
+    await sendAndLog(conv.id, phone, "✅ Presença confirmada! Te esperamos.");
   } else {
     await supabase.from("appointments").update({ status: "cancelled" }).eq("id", appt.id);
-    await sendWhatsApp(phone, `❌ Agendamento cancelado. Para reagendar acesse: ${PORTAL}`);
+    await sendAndLog(conv.id, phone, `❌ Agendamento cancelado. Para reagendar acesse: ${PORTAL}`);
   }
   return true;
 }
@@ -126,13 +126,13 @@ async function runBot(phone: string, text: string) {
 
   if (upper === "ATENDENTE") {
     await saveSession(phone, session?.state ?? "idle", session?.data_json as Record<string, unknown> ?? {}, true);
-    await sendWhatsApp(phone, "👤 Encaminhando para um atendente humano. Em breve alguém falará com você.");
+    await sendAndLog(conv.id, phone, "👤 Encaminhando para um atendente humano. Em breve alguém falará com você.");
     return;
   }
   if (session?.human_handoff) return;
   if (upper === "MENU" || !session || session.state === "idle") {
     await saveSession(phone, "menu", {});
-    await sendWhatsApp(phone, "Olá! 👋 Bem-vindo à *BarberPass*! 💈\n\nComo posso te ajudar?\n1️⃣ Agendar corte\n2️⃣ Ver meu agendamento\n3️⃣ Falar com atendente");
+    await sendAndLog(conv.id, phone, "Olá! 👋 Bem-vindo à *BarberPass*! 💈\n\nComo posso te ajudar?\n1️⃣ Agendar corte\n2️⃣ Ver meu agendamento\n3️⃣ Falar com atendente");
     return;
   }
 
@@ -142,26 +142,26 @@ async function runBot(phone: string, text: string) {
     case "menu": {
       if (text.trim() === "1") {
         await saveSession(phone, "ask_name", {});
-        await sendWhatsApp(phone, "Me informe seu nome completo:");
+        await sendAndLog(conv.id, phone, "Me informe seu nome completo:");
       } else if (text.trim() === "2") {
         const { data: profile } = await supabase.from("profiles").select("id, full_name").eq("phone", phone).maybeSingle();
-        if (!profile) { await sendWhatsApp(phone, "Não encontrei seu cadastro. Digite *1* para agendar."); break; }
+        if (!profile) { await sendAndLog(conv.id, phone, "Não encontrei seu cadastro. Digite *1* para agendar."); break; }
         const today = new Date(); today.setHours(0,0,0,0);
         const { data: appt } = await supabase.from("appointments")
           .select("scheduled_at, service_type, status")
           .eq("user_id", profile.id).gte("scheduled_at", today.toISOString())
           .neq("status","cancelled").order("scheduled_at").limit(1).maybeSingle();
-        if (!appt) await sendWhatsApp(phone, "Você não tem agendamentos futuros. Digite *MENU* para começar.");
+        if (!appt) await sendAndLog(conv.id, phone, "Você não tem agendamentos futuros. Digite *MENU* para começar.");
         else {
           const dt = new Date(appt.scheduled_at);
-          await sendWhatsApp(phone, `📅 Próximo agendamento:\n${dt.toLocaleDateString("pt-BR")} às ${dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}\nStatus: ${appt.status}\n\nDigite *MENU* para outras opções.`);
+          await sendAndLog(conv.id, phone, `📅 Próximo agendamento:\n${dt.toLocaleDateString("pt-BR")} às ${dt.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}\nStatus: ${appt.status}\n\nDigite *MENU* para outras opções.`);
         }
         await saveSession(phone, "idle", {});
       } else if (text.trim() === "3") {
         await saveSession(phone, "idle", {}, true);
-        await sendWhatsApp(phone, "👤 Encaminhando para um atendente. Em breve falaremos com você.");
+        await sendAndLog(conv.id, phone, "👤 Encaminhando para um atendente. Em breve falaremos com você.");
       } else {
-        await sendWhatsApp(phone, "Digite *1*, *2* ou *3*.");
+        await sendAndLog(conv.id, phone, "Digite *1*, *2* ou *3*.");
       }
       break;
     }
@@ -169,44 +169,44 @@ async function runBot(phone: string, text: string) {
       const name = text.trim();
       const list = SERVICES.map((s, i) => `${i+1}️⃣ ${s.label} — R$${s.price}`).join("\n");
       await saveSession(phone, "ask_service", { name });
-      await sendWhatsApp(phone, `Que ótimo, ${name}! Qual serviço deseja?\n${list}`);
+      await sendAndLog(conv.id, phone, `Que ótimo, ${name}! Qual serviço deseja?\n${list}`);
       break;
     }
     case "ask_service": {
       const idx = parseInt(text.trim(), 10) - 1;
-      if (isNaN(idx) || idx < 0 || idx >= SERVICES.length) { await sendWhatsApp(phone, "Escolha um número válido."); break; }
+      if (isNaN(idx) || idx < 0 || idx >= SERVICES.length) { await sendAndLog(conv.id, phone, "Escolha um número válido."); break; }
       const service = SERVICES[idx];
       const { data: barbers } = await supabase.from("barbers").select("id, full_name").eq("active", true).limit(1);
       const barber = barbers?.[0];
-      if (!barber) { await sendWhatsApp(phone, "Nenhum barbeiro disponível no momento. Tente mais tarde."); await saveSession(phone, "idle", {}); break; }
+      if (!barber) { await sendAndLog(conv.id, phone, "Nenhum barbeiro disponível no momento. Tente mais tarde."); await saveSession(phone, "idle", {}); break; }
       const dates = nextDates();
       const lines = await Promise.all(dates.map(async (d, i) => {
         const free = await freeSlots(barber.id, d.iso);
         return `${i+1}️⃣ ${d.label} — ${free.length} horários`;
       }));
       await saveSession(phone, "ask_date", { ...data, service: service.id, serviceLabel: service.label, barberId: barber.id, barberName: barber.full_name, dates });
-      await sendWhatsApp(phone, `Perfeito! Escolha uma data disponível:\n${lines.join("\n")}`);
+      await sendAndLog(conv.id, phone, `Perfeito! Escolha uma data disponível:\n${lines.join("\n")}`);
       break;
     }
     case "ask_date": {
       const idx = parseInt(text.trim(), 10) - 1;
       const dates = data.dates as { iso: string; label: string }[];
-      if (!dates || isNaN(idx) || idx < 0 || idx >= dates.length) { await sendWhatsApp(phone, "Escolha um número válido."); break; }
+      if (!dates || isNaN(idx) || idx < 0 || idx >= dates.length) { await sendAndLog(conv.id, phone, "Escolha um número válido."); break; }
       const chosen = dates[idx];
       const slots = await freeSlots(data.barberId as string, chosen.iso);
-      if (!slots.length) { await sendWhatsApp(phone, "Sem horários nesta data. Escolha outra."); break; }
+      if (!slots.length) { await sendAndLog(conv.id, phone, "Sem horários nesta data. Escolha outra."); break; }
       const display = slots.slice(0, 12).map((s, i) => `${i+1}️⃣ ${s}`).join("  ");
       await saveSession(phone, "ask_time", { ...data, dateIso: chosen.iso, dateLabel: chosen.label, slots: slots.slice(0,12) });
-      await sendWhatsApp(phone, `Horários disponíveis para ${chosen.label}:\n${display}`);
+      await sendAndLog(conv.id, phone, `Horários disponíveis para ${chosen.label}:\n${display}`);
       break;
     }
     case "ask_time": {
       const idx = parseInt(text.trim(), 10) - 1;
       const slots = data.slots as string[];
-      if (!slots || isNaN(idx) || idx < 0 || idx >= slots.length) { await sendWhatsApp(phone, "Escolha um número válido."); break; }
+      if (!slots || isNaN(idx) || idx < 0 || idx >= slots.length) { await sendAndLog(conv.id, phone, "Escolha um número válido."); break; }
       const time = slots[idx];
       await saveSession(phone, "confirm", { ...data, time });
-      await sendWhatsApp(phone, `Confirma seu agendamento?\n📅 ${data.dateLabel} às ${time}\n✂️ Serviço: ${data.serviceLabel}\n\nResponda *SIM* para confirmar ou *NÃO* para cancelar.`);
+      await sendAndLog(conv.id, phone, `Confirma seu agendamento?\n📅 ${data.dateLabel} às ${time}\n✂️ Serviço: ${data.serviceLabel}\n\nResponda *SIM* para confirmar ou *NÃO* para cancelar.`);
       break;
     }
     case "confirm": {
@@ -223,30 +223,30 @@ async function runBot(phone: string, text: string) {
           });
           if (created?.user) profile = { id: created.user.id };
         }
-        if (!profile) { await sendWhatsApp(phone, "Erro ao criar cadastro. Tente novamente mais tarde."); await saveSession(phone, "idle", {}); break; }
+        if (!profile) { await sendAndLog(conv.id, phone, "Erro ao criar cadastro. Tente novamente mais tarde."); await saveSession(phone, "idle", {}); break; }
 
         const scheduled_at = new Date(`${data.dateIso}T${data.time}:00`).toISOString();
         const { data: appt, error } = await supabase.from("appointments").insert({
           user_id: profile.id, barber_id: data.barberId, service_type: data.service,
           scheduled_at, status: "confirmed", confirmed_by_whatsapp: true,
         }).select().single();
-        if (error) { await sendWhatsApp(phone, "Erro ao agendar. Tente novamente."); await saveSession(phone, "idle", {}); break; }
+        if (error) { await sendAndLog(conv.id, phone, "Erro ao agendar. Tente novamente."); await saveSession(phone, "idle", {}); break; }
 
-        await sendWhatsApp(phone, `✅ *Agendamento realizado!*\n\nTe esperamos no dia ${data.dateLabel} às ${data.time}.\nPara gerenciar acesse: ${PORTAL}\n\nAté logo! 💈`);
+        await sendAndLog(conv.id, phone, `✅ *Agendamento realizado!*\n\nTe esperamos no dia ${data.dateLabel} às ${data.time}.\nPara gerenciar acesse: ${PORTAL}\n\nAté logo! 💈`);
 
         const { data: barber } = await supabase.from("barbers").select("phone").eq("id", data.barberId).single();
         if (barber?.phone) await sendWhatsApp(barber.phone, `📋 Novo agendamento (WhatsApp)\nCliente: ${data.name}\n${data.dateLabel} às ${data.time}\n${data.serviceLabel}`);
 
         await saveSession(phone, "idle", {});
       } else {
-        await sendWhatsApp(phone, "Tudo bem, agendamento não realizado. Digite *MENU* para recomeçar.");
+        await sendAndLog(conv.id, phone, "Tudo bem, agendamento não realizado. Digite *MENU* para recomeçar.");
         await saveSession(phone, "idle", {});
       }
       break;
     }
     default:
       await saveSession(phone, "idle", {});
-      await sendWhatsApp(phone, "Digite *MENU* para começar.");
+      await sendAndLog(conv.id, phone, "Digite *MENU* para começar.");
   }
 }
 
