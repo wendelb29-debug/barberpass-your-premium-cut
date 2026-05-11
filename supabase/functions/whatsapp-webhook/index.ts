@@ -3,6 +3,32 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { sendWhatsApp, normalizePhone, corsHeaders } from "../_shared/uazapi.ts";
 
+async function getOrCreateConversation(phone: string) {
+  const { data: profile } = await supabase.from("profiles").select("id").eq("phone", phone).maybeSingle();
+  const { data: existing } = await supabase.from("conversations").select("*").eq("phone", phone).maybeSingle();
+  if (existing) {
+    if (!existing.client_id && profile) {
+      await supabase.from("conversations").update({ client_id: profile.id }).eq("id", existing.id);
+    }
+    return existing;
+  }
+  const { data: created } = await supabase.from("conversations").insert({
+    phone, client_id: profile?.id ?? null, mode: "bot", status: "open",
+  }).select().single();
+  return created!;
+}
+
+async function logMessage(conversationId: string, body: string, senderType: "client"|"bot"|"agent"|"system", senderName?: string) {
+  await supabase.from("messages").insert({
+    conversation_id: conversationId, body, sender_type: senderType, sender_name: senderName ?? null,
+  });
+}
+
+async function sendAndLog(conversationId: string, phone: string, body: string, senderType: "bot"|"agent"|"system" = "bot") {
+  await sendWhatsApp(phone, body);
+  await logMessage(conversationId, body, senderType, senderType === "bot" ? "Bot" : undefined);
+}
+
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
