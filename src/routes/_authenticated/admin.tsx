@@ -17,6 +17,7 @@ function AdminLayout() {
       { to: "/admin", label: "Dashboard" },
       { to: "/admin/clientes", label: "Clientes" },
       { to: "/admin/barbeiros", label: "Barbeiros" },
+      { to: "/atendimento", label: "Atendimento" },
       { to: "/admin/relatorios", label: "Relatórios" },
     ]}>
       <Outlet />
