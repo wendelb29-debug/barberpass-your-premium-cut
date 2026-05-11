@@ -1,15 +1,16 @@
 import { Scissors } from "lucide-react";
 
 export function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const sz = size === "lg" ? "text-3xl" : size === "sm" ? "text-base" : "text-xl";
-  const ic = size === "lg" ? 28 : size === "sm" ? 16 : 20;
+  const sz = size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-base";
+  const ic = size === "lg" ? 18 : size === "sm" ? 12 : 14;
+  const box = size === "lg" ? "h-9 w-9" : size === "sm" ? "h-6 w-6" : "h-7 w-7";
   return (
-    <div className="flex items-center gap-2">
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-gradient-gold text-primary-foreground shadow-gold">
-        <Scissors size={ic} strokeWidth={2.5} />
+    <div className="flex items-center gap-2.5">
+      <span className={`inline-flex ${box} items-center justify-center rounded-md border border-primary/30 bg-primary/10 text-primary`}>
+        <Scissors size={ic} strokeWidth={2.25} />
       </span>
-      <span className={`font-display font-bold tracking-tight ${sz}`}>
-        Barber<span className="text-gradient-gold">Pass</span>
+      <span className={`font-display tracking-tight ${sz} font-semibold leading-none`}>
+        Barber<span className="text-primary">Pass</span>
       </span>
     </div>
   );
