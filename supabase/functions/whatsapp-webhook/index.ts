@@ -120,7 +120,7 @@ async function handleReminderReply(conv: { id: string }, phone: string, text: st
   return true;
 }
 
-async function runBot(phone: string, text: string) {
+async function runBot(conv: { id: string }, phone: string, text: string) {
   const upper = text.trim().toUpperCase();
   let session = await getSession(phone);
 
