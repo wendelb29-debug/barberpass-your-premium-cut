@@ -13,7 +13,10 @@ function BarberLayout() {
     if (!roles.includes("barbeiro") && !roles.includes("admin")) navigate({ to: "/cliente" });
   }, [roles, loading, navigate]);
   return (
-    <DashboardShell nav={[{ to: "/barbeiro", label: "Agenda do dia" }]}>
+    <DashboardShell nav={[
+      { to: "/barbeiro", label: "Agenda do dia" },
+      { to: "/atendimento", label: "Atendimento" },
+    ]}>
       <Outlet />
     </DashboardShell>
   );
