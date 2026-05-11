@@ -74,10 +74,10 @@ function Schedule() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl">Agendar atendimento</h1>
-        <p className="text-muted-foreground">Escolha barbeiro, dia e horário.</p>
+        <h1 className="font-display text-[32px] font-semibold leading-tight tracking-tight md:text-[40px]">Agendar atendimento</h1>
+        <p className="mt-1 text-[14px] text-muted-foreground">Escolha barbeiro, dia e horário.</p>
       </div>
       <Card className="grid gap-4 p-6 md:grid-cols-3">
         <div>
