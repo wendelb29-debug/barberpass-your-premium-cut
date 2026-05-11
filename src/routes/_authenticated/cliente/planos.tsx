@@ -1,19 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PlanCard } from "@/components/PlanCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
+import { subscribeToPlan, cancelMySubscription } from "@/lib/subscriptions.functions";
 
 export const Route = createFileRoute("/_authenticated/cliente/planos")({ component: PlansPage });
 
 function PlansPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [busy, setBusy] = useState<string | null>(null);
+  const subscribe = useServerFn(subscribeToPlan);
+  const cancelSub = useServerFn(cancelMySubscription);
+  const [open, setOpen] = useState<string | null>(null);
+  const [billing, setBilling] = useState<"PIX" | "CREDIT_CARD" | "BOLETO">("PIX");
+  const [cpf, setCpf] = useState("");
+  const [busy, setBusy] = useState(false);
 
   const { data: plans } = useQuery({
     queryKey: ["plans"],
@@ -25,29 +36,28 @@ function PlansPage() {
     queryFn: async () => (await supabase.from("subscriptions").select("*").eq("user_id", user!.id).order("created_at", { ascending: false }).limit(1).maybeSingle()).data,
   });
 
-  const subscribe = async (planId: string) => {
-    if (!user) return;
-    setBusy(planId);
-    // If existing subscription, cancel it then create a new one (upgrade flow).
-    if (sub && sub.status !== "CANCELLED") {
-      await supabase.from("subscriptions").update({ status: "CANCELLED", cancelled_at: new Date().toISOString() }).eq("id", sub.id);
-    }
-    const next = new Date(); next.setMonth(next.getMonth() + 1);
-    const { error } = await supabase.from("subscriptions").insert({
-      user_id: user.id, plan_id: planId, status: "ACTIVE", billing_type: "PIX", next_due_date: next.toISOString().slice(0,10),
-    });
-    setBusy(null);
-    if (error) { toast.error(error.message); return; }
-    toast.success("Plano ativado! Pagamento será cobrado pelo Asaas.");
-    qc.invalidateQueries({ queryKey: ["my-subscription"] });
+  const confirmSubscribe = async () => {
+    if (!open) return;
+    setBusy(true);
+    try {
+      await subscribe({ data: { planId: open, billingType: billing, cpfCnpj: cpf || undefined } });
+      toast.success("Assinatura criada! Confira sua fatura no painel.");
+      setOpen(null); setCpf("");
+      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Falha ao assinar");
+    } finally { setBusy(false); }
   };
 
   const cancel = async () => {
-    if (!sub) return;
     if (!confirm("Cancelar sua assinatura?")) return;
-    await supabase.from("subscriptions").update({ status: "CANCELLED", cancelled_at: new Date().toISOString() }).eq("id", sub.id);
-    toast.success("Assinatura cancelada.");
-    qc.invalidateQueries({ queryKey: ["my-subscription"] });
+    try {
+      await cancelSub({});
+      toast.success("Assinatura cancelada.");
+      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Falha");
+    }
   };
 
   return (
@@ -61,8 +71,7 @@ function PlansPage() {
           <PlanCard key={p.id} name={p.name} price_cents={p.price_cents} description={p.description} benefits={p.benefits}
             highlighted={i === 1}
             ctaLabel={sub?.plan_id === p.id && sub.status !== "CANCELLED" ? "Plano atual" : "Selecionar"}
-            loading={busy === p.id}
-            onSelect={() => sub?.plan_id !== p.id && subscribe(p.id)} />
+            onSelect={() => sub?.plan_id !== p.id && setOpen(p.id)} />
         ))}
       </div>
       {sub && sub.status !== "CANCELLED" && (
@@ -74,6 +83,30 @@ function PlansPage() {
           <Button variant="destructive" onClick={cancel}>Cancelar</Button>
         </Card>
       )}
+
+      <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Forma de pagamento</DialogTitle></DialogHeader>
+          <RadioGroup value={billing} onValueChange={(v) => setBilling(v as any)} className="space-y-2">
+            {(["PIX","CREDIT_CARD","BOLETO"] as const).map((b) => (
+              <div key={b} className="flex items-center gap-2 rounded border border-border p-3">
+                <RadioGroupItem value={b} id={b} />
+                <Label htmlFor={b} className="cursor-pointer">{b === "PIX" ? "PIX" : b === "CREDIT_CARD" ? "Cartão de crédito" : "Boleto"}</Label>
+              </div>
+            ))}
+          </RadioGroup>
+          <div className="space-y-2">
+            <Label htmlFor="cpf">CPF / CNPJ (necessário para gerar a primeira cobrança)</Label>
+            <Input id="cpf" value={cpf} onChange={(e) => setCpf(e.target.value)} placeholder="000.000.000-00" />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(null)}>Voltar</Button>
+            <Button disabled={busy} onClick={confirmSubscribe} className="bg-gradient-gold text-primary-foreground">
+              {busy ? "Processando..." : "Confirmar assinatura"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

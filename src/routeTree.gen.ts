@@ -19,6 +19,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedClienteIndexRouteImport } from './routes/_authenticated/cliente/index'
 import { Route as AuthenticatedBarbeiroIndexRouteImport } from './routes/_authenticated/barbeiro/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas-webhook'
 import { Route as AuthenticatedClientePlanosRouteImport } from './routes/_authenticated/cliente/planos'
 import { Route as AuthenticatedClienteHistoricoRouteImport } from './routes/_authenticated/cliente/historico'
 import { Route as AuthenticatedClienteAgendarRouteImport } from './routes/_authenticated/cliente/agendar'
@@ -77,6 +78,11 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const ApiPublicAsaasWebhookRoute = ApiPublicAsaasWebhookRouteImport.update({
+  id: '/api/public/asaas-webhook',
+  path: '/api/public/asaas-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedClientePlanosRoute =
   AuthenticatedClientePlanosRouteImport.update({
     id: '/planos',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/cliente/agendar': typeof AuthenticatedClienteAgendarRoute
   '/cliente/historico': typeof AuthenticatedClienteHistoricoRoute
   '/cliente/planos': typeof AuthenticatedClientePlanosRoute
+  '/api/public/asaas-webhook': typeof ApiPublicAsaasWebhookRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/barbeiro/': typeof AuthenticatedBarbeiroIndexRoute
   '/cliente/': typeof AuthenticatedClienteIndexRoute
@@ -141,6 +148,7 @@ export interface FileRoutesByTo {
   '/cliente/agendar': typeof AuthenticatedClienteAgendarRoute
   '/cliente/historico': typeof AuthenticatedClienteHistoricoRoute
   '/cliente/planos': typeof AuthenticatedClientePlanosRoute
+  '/api/public/asaas-webhook': typeof ApiPublicAsaasWebhookRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/barbeiro': typeof AuthenticatedBarbeiroIndexRoute
   '/cliente': typeof AuthenticatedClienteIndexRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/_authenticated/cliente/agendar': typeof AuthenticatedClienteAgendarRoute
   '/_authenticated/cliente/historico': typeof AuthenticatedClienteHistoricoRoute
   '/_authenticated/cliente/planos': typeof AuthenticatedClientePlanosRoute
+  '/api/public/asaas-webhook': typeof ApiPublicAsaasWebhookRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/barbeiro/': typeof AuthenticatedBarbeiroIndexRoute
   '/_authenticated/cliente/': typeof AuthenticatedClienteIndexRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/cliente/agendar'
     | '/cliente/historico'
     | '/cliente/planos'
+    | '/api/public/asaas-webhook'
     | '/admin/'
     | '/barbeiro/'
     | '/cliente/'
@@ -193,6 +203,7 @@ export interface FileRouteTypes {
     | '/cliente/agendar'
     | '/cliente/historico'
     | '/cliente/planos'
+    | '/api/public/asaas-webhook'
     | '/admin'
     | '/barbeiro'
     | '/cliente'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/cliente/agendar'
     | '/_authenticated/cliente/historico'
     | '/_authenticated/cliente/planos'
+    | '/api/public/asaas-webhook'
     | '/_authenticated/admin/'
     | '/_authenticated/barbeiro/'
     | '/_authenticated/cliente/'
@@ -221,6 +233,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CadastroRoute: typeof CadastroRoute
   LoginRoute: typeof LoginRoute
+  ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -294,6 +307,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/api/public/asaas-webhook': {
+      id: '/api/public/asaas-webhook'
+      path: '/api/public/asaas-webhook'
+      fullPath: '/api/public/asaas-webhook'
+      preLoaderRoute: typeof ApiPublicAsaasWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/cliente/planos': {
       id: '/_authenticated/cliente/planos'
@@ -408,6 +428,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CadastroRoute: CadastroRoute,
   LoginRoute: LoginRoute,
+  ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
