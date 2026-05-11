@@ -271,9 +271,21 @@ Deno.serve(async (req) => {
       phone, last_message: text, updated_at: new Date().toISOString(),
     }, { onConflict: "phone", ignoreDuplicates: false });
 
+    // Conversation + inbound message
+    const conv = await getOrCreateConversation(phone);
+    await logMessage(conv.id, text, "client");
+
+    // If a human has taken over, do not run the bot
+    const { data: convNow } = await supabase.from("conversations").select("mode,status").eq("id", conv.id).single();
+    if (convNow?.mode === "human") {
+      return new Response(JSON.stringify({ ok: true, mode: "human" }), {
+        headers: { ...corsHeaders, "content-type": "application/json" },
+      });
+    }
+
     // Try reminder reply first
-    const handled = await handleReminderReply(phone, text);
-    if (!handled) await runBot(phone, text);
+    const handled = await handleReminderReply(conv, phone, text);
+    if (!handled) await runBot(conv, phone, text);
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "content-type": "application/json" },
