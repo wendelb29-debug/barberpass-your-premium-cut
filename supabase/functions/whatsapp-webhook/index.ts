@@ -92,7 +92,7 @@ async function freeSlots(barberId: string, dateIso: string): Promise<string[]> {
   return slots;
 }
 
-async function handleReminderReply(phone: string, text: string): Promise<boolean> {
+async function handleReminderReply(conv: { id: string }, phone: string, text: string): Promise<boolean> {
   const upper = text.trim().toUpperCase();
   const wantsConfirm = upper.includes("CONFIRMAR");
   const wantsCancel = upper.includes("CANCELAR");
