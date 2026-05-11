@@ -63,8 +63,8 @@ function PlansPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl">Planos</h1>
-        <p className="text-muted-foreground">Escolha, faça upgrade ou cancele quando quiser.</p>
+        <h1 className="font-display text-[32px] font-semibold leading-tight tracking-tight md:text-[40px]">Planos</h1>
+        <p className="mt-1 text-[14px] text-muted-foreground">Escolha, faça upgrade ou cancele quando quiser.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-3">
         {plans?.map((p, i) => (
@@ -101,7 +101,7 @@ function PlansPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(null)}>Voltar</Button>
-            <Button disabled={busy} onClick={confirmSubscribe} className="bg-gradient-gold text-primary-foreground">
+            <Button disabled={busy} onClick={confirmSubscribe} className="h-10 rounded-[10px] bg-primary px-5 text-primary-foreground hover:bg-primary/90">
               {busy ? "Processando..." : "Confirmar assinatura"}
             </Button>
           </DialogFooter>
