@@ -60,13 +60,17 @@ function Schedule() {
     if (!sub || sub.status === "CANCELLED") { toast.error("Assine um plano para agendar"); return; }
     setBusy(true);
     const scheduled_at = new Date(`${date}T${t}:00`).toISOString();
-    const { error } = await supabase.from("appointments").insert({
+    const { data: appt, error } = await supabase.from("appointments").insert({
       user_id: user.id, barber_id: barberId, plan_id: sub.plan_id, scheduled_at, service_type: service,
-    });
+    }).select().single();
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Horário reservado!");
+    toast.success("Horário reservado! Confirmação enviada via WhatsApp.");
     qc.invalidateQueries({ queryKey: ["taken"] });
+    if (appt) {
+      supabase.functions.invoke("send-appointment-confirmation", { body: { appointmentId: appt.id } })
+        .catch((e) => console.error("whatsapp confirmation failed", e));
+    }
   };
 
   return (
