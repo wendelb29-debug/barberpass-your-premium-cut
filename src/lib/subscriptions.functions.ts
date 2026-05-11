@@ -72,7 +72,7 @@ export const subscribeToPlan = createServerFn({ method: "POST" })
     }).select().single();
     if (error) throw new Error(error.message);
 
-    return { subscription: row, asaas: sub };
+    return { subscriptionId: row.id, asaasSubscriptionId: sub.id as string };
   });
 
 export const cancelMySubscription = createServerFn({ method: "POST" })
