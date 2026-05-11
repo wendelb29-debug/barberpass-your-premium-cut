@@ -3,10 +3,12 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/AppShell";
+import { StatusBadge } from "@/components/StatusBadge";
+import { InitialsAvatar } from "@/components/Avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/barbeiro/")({ component: BarberAgenda });
 
@@ -21,7 +23,7 @@ function BarberAgenda() {
     queryFn: async () => (await supabase.from("barbers").select("*").eq("user_id", user!.id).maybeSingle()).data,
   });
 
-  const { data: appts } = useQuery({
+  const { data: appts, isLoading } = useQuery({
     queryKey: ["agenda", barber?.id, date],
     enabled: !!barber?.id,
     queryFn: async () => {
@@ -43,50 +45,82 @@ function BarberAgenda() {
     if (status === "completed") patch.completed_at = new Date().toISOString();
     const { error } = await supabase.from("appointments").update(patch).eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success("Atualizado!");
+    toast.success("Agendamento atualizado");
     qc.invalidateQueries({ queryKey: ["agenda"] });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-3xl">Agenda</h1>
-          <p className="text-muted-foreground">{barber?.full_name ?? "Barbeiro não vinculado ainda"}</p>
-        </div>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-          className="h-9 rounded-md border border-input bg-input/30 px-3 text-sm" />
-      </div>
+    <div className="flex flex-col gap-8">
+      <PageHeader
+        title="Agenda do dia"
+        subtitle={barber?.full_name ?? "Barbeiro não vinculado ainda"}
+        actions={
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="h-10 rounded-[8px] border border-border bg-input px-3 text-[13px] tnum"
+          />
+        }
+      />
 
       {!barber && (
-        <Card className="p-6 text-sm text-muted-foreground">
+        <div className="rounded-xl border border-border bg-card p-6 text-[13px] text-muted-foreground">
           Sua conta de barbeiro ainda não está vinculada. Peça ao administrador para te cadastrar em "Painel admin → Barbeiros".
-        </Card>
+        </div>
       )}
 
-      <Card className="divide-y divide-border p-0">
-        {!appts?.length && barber && (
-          <div className="p-8 text-center text-muted-foreground">Sem agendamentos para este dia.</div>
-        )}
-        {appts?.map((a) => (
-          <div key={a.id} className="flex flex-wrap items-center justify-between gap-4 p-4">
-            <div>
-              <div className="text-lg font-semibold">{new Date(a.scheduled_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
-              <div className="text-sm">{(a as any).profiles?.full_name ?? "Cliente"}</div>
-              <div className="text-xs text-muted-foreground">{a.service_type} • {(a as any).plans?.name ?? "Avulso"} • {(a as any).profiles?.phone}</div>
+      {isLoading && barber && <Skeleton className="h-[260px] w-full rounded-xl" />}
+
+      {barber && !isLoading && (
+        <div className="flex flex-col gap-3">
+          {!appts?.length && (
+            <div className="rounded-xl border border-border bg-card p-10 text-center text-[13px] text-muted-foreground">
+              Sem agendamentos para este dia.
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">{a.status}</Badge>
-              {a.status !== "completed" && a.status !== "cancelled" && (
-                <>
-                  <Button size="sm" onClick={() => update(a.id, "completed")} className="bg-gradient-gold text-primary-foreground">Concluir</Button>
-                  <Button size="sm" variant="outline" onClick={() => update(a.id, "cancelled")}>Cancelar</Button>
-                </>
-              )}
-            </div>
-          </div>
-        ))}
-      </Card>
+          )}
+          {appts?.map((a) => {
+            const time = new Date(a.scheduled_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+            const done = a.status === "completed" || a.status === "cancelled";
+            const name = (a as any).profiles?.full_name ?? "Cliente";
+            return (
+              <div
+                key={a.id}
+                className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-border/80"
+              >
+                <div className="tnum w-16 text-[20px] font-medium leading-none">{time}</div>
+                <InitialsAvatar name={name} size={36} />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-medium leading-tight">{name}</p>
+                  <p className="mt-0.5 text-[12px] text-muted-foreground">
+                    {a.service_type} · {(a as any).plans?.name ?? "Avulso"} · {(a as any).profiles?.phone ?? "—"}
+                  </p>
+                </div>
+                <StatusBadge status={a.status} />
+                {!done && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => update(a.id, "completed")}
+                      className="h-8 rounded-[8px] bg-primary px-3 text-[12px] text-primary-foreground hover:bg-primary/90"
+                    >
+                      Concluir
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => update(a.id, "cancelled")}
+                      className="h-8 rounded-[8px] border-border/60 bg-transparent px-3 text-[12px] hover:bg-white/5"
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
