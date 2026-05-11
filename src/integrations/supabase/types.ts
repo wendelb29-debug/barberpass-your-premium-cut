@@ -107,6 +107,136 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_tags: {
+        Row: {
+          color: string
+          conversation_id: string
+          created_at: string
+          id: string
+          tag: string
+        }
+        Insert: {
+          color?: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          tag: string
+        }
+        Update: {
+          color?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_tags_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          barber_id: string | null
+          client_id: string | null
+          created_at: string
+          id: string
+          last_message: string | null
+          last_message_at: string | null
+          mode: string
+          phone: string
+          status: string
+          unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          barber_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          mode?: string
+          phone: string
+          status?: string
+          unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          barber_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          mode?: string
+          phone?: string
+          status?: string
+          unread_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachment_url: string | null
+          body: string
+          conversation_id: string
+          id: string
+          sender_id: string | null
+          sender_name: string | null
+          sender_type: string
+          sent_at: string
+        }
+        Insert: {
+          attachment_url?: string | null
+          body: string
+          conversation_id: string
+          id?: string
+          sender_id?: string | null
+          sender_name?: string | null
+          sender_type: string
+          sent_at?: string
+        }
+        Update: {
+          attachment_url?: string | null
+          body?: string
+          conversation_id?: string
+          id?: string
+          sender_id?: string | null
+          sender_name?: string | null
+          sender_type?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           asaas_payment_id: string | null
@@ -222,6 +352,38 @@ export type Database = {
           phone?: string | null
         }
         Relationships: []
+      }
+      quick_replies: {
+        Row: {
+          barber_id: string | null
+          body: string
+          created_at: string
+          id: string
+          title: string
+        }
+        Insert: {
+          barber_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          title: string
+        }
+        Update: {
+          barber_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quick_replies_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {

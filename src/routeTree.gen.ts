@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedClienteRouteImport } from './routes/_authenticated/cliente'
 import { Route as AuthenticatedBarbeiroRouteImport } from './routes/_authenticated/barbeiro'
+import { Route as AuthenticatedAtendimentoRouteImport } from './routes/_authenticated/atendimento'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedClienteIndexRouteImport } from './routes/_authenticated/cliente/index'
 import { Route as AuthenticatedBarbeiroIndexRouteImport } from './routes/_authenticated/barbeiro/index'
@@ -56,6 +57,12 @@ const AuthenticatedBarbeiroRoute = AuthenticatedBarbeiroRouteImport.update({
   path: '/barbeiro',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAtendimentoRoute =
+  AuthenticatedAtendimentoRouteImport.update({
+    id: '/atendimento',
+    path: '/atendimento',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -125,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/atendimento': typeof AuthenticatedAtendimentoRoute
   '/barbeiro': typeof AuthenticatedBarbeiroRouteWithChildren
   '/cliente': typeof AuthenticatedClienteRouteWithChildren
   '/admin/barbeiros': typeof AuthenticatedAdminBarbeirosRoute
@@ -142,6 +150,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
+  '/atendimento': typeof AuthenticatedAtendimentoRoute
   '/admin/barbeiros': typeof AuthenticatedAdminBarbeirosRoute
   '/admin/clientes': typeof AuthenticatedAdminClientesRoute
   '/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/login': typeof LoginRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/atendimento': typeof AuthenticatedAtendimentoRoute
   '/_authenticated/barbeiro': typeof AuthenticatedBarbeiroRouteWithChildren
   '/_authenticated/cliente': typeof AuthenticatedClienteRouteWithChildren
   '/_authenticated/admin/barbeiros': typeof AuthenticatedAdminBarbeirosRoute
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/admin'
+    | '/atendimento'
     | '/barbeiro'
     | '/cliente'
     | '/admin/barbeiros'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/login'
+    | '/atendimento'
     | '/admin/barbeiros'
     | '/admin/clientes'
     | '/admin/relatorios'
@@ -214,6 +226,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/login'
     | '/_authenticated/admin'
+    | '/_authenticated/atendimento'
     | '/_authenticated/barbeiro'
     | '/_authenticated/cliente'
     | '/_authenticated/admin/barbeiros'
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       path: '/barbeiro'
       fullPath: '/barbeiro'
       preLoaderRoute: typeof AuthenticatedBarbeiroRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/atendimento': {
+      id: '/_authenticated/atendimento'
+      path: '/atendimento'
+      fullPath: '/atendimento'
+      preLoaderRoute: typeof AuthenticatedAtendimentoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin': {
@@ -409,12 +429,14 @@ const AuthenticatedClienteRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedAtendimentoRoute: typeof AuthenticatedAtendimentoRoute
   AuthenticatedBarbeiroRoute: typeof AuthenticatedBarbeiroRouteWithChildren
   AuthenticatedClienteRoute: typeof AuthenticatedClienteRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedAtendimentoRoute: AuthenticatedAtendimentoRoute,
   AuthenticatedBarbeiroRoute: AuthenticatedBarbeiroRouteWithChildren,
   AuthenticatedClienteRoute: AuthenticatedClienteRouteWithChildren,
 }
