@@ -14,16 +14,293 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          barber_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          plan_id: string | null
+          scheduled_at: string
+          service_type: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          barber_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          plan_id?: string | null
+          scheduled_at: string
+          service_type?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          barber_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          plan_id?: string | null
+          scheduled_at?: string
+          service_type?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barbers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      barbers: {
+        Row: {
+          active: boolean
+          bio: string | null
+          created_at: string
+          full_name: string
+          id: string
+          specialties: string[]
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          bio?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          specialties?: string[]
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          bio?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          specialties?: string[]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          asaas_payment_id: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          invoice_url: string | null
+          paid_at: string | null
+          status: string
+          subscription_id: string | null
+          user_id: string
+          value_cents: number
+        }
+        Insert: {
+          asaas_payment_id?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id: string
+          value_cents: number
+        }
+        Update: {
+          asaas_payment_id?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          status?: string
+          subscription_id?: string | null
+          user_id?: string
+          value_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          active: boolean
+          beard_limit: number | null
+          benefits: string[]
+          billing_cycle: string
+          created_at: string
+          description: string | null
+          haircut_limit: number | null
+          id: string
+          name: string
+          price_cents: number
+          sort_order: number
+          unlimited: boolean
+        }
+        Insert: {
+          active?: boolean
+          beard_limit?: number | null
+          benefits?: string[]
+          billing_cycle?: string
+          created_at?: string
+          description?: string | null
+          haircut_limit?: number | null
+          id?: string
+          name: string
+          price_cents: number
+          sort_order?: number
+          unlimited?: boolean
+        }
+        Update: {
+          active?: boolean
+          beard_limit?: number | null
+          benefits?: string[]
+          billing_cycle?: string
+          created_at?: string
+          description?: string | null
+          haircut_limit?: number | null
+          id?: string
+          name?: string
+          price_cents?: number
+          sort_order?: number
+          unlimited?: boolean
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          asaas_customer_id: string | null
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          asaas_customer_id?: string | null
+          created_at?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          asaas_customer_id?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          asaas_subscription_id: string | null
+          billing_type: string
+          cancelled_at: string | null
+          created_at: string
+          id: string
+          next_due_date: string | null
+          plan_id: string
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          asaas_subscription_id?: string | null
+          billing_type?: string
+          cancelled_at?: string | null
+          created_at?: string
+          id?: string
+          next_due_date?: string | null
+          plan_id: string
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          asaas_subscription_id?: string | null
+          billing_type?: string
+          cancelled_at?: string | null
+          created_at?: string
+          id?: string
+          next_due_date?: string | null
+          plan_id?: string
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_roles: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"][]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "cliente" | "barbeiro" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +427,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["cliente", "barbeiro", "admin"],
+    },
   },
 } as const
